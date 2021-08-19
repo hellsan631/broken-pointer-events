@@ -1,23 +1,33 @@
 import Animated, {
   useSharedValue,
-  withTiming,
+  useAnimatedGestureHandler,
   useAnimatedStyle,
-  Easing,
 } from "react-native-reanimated";
 import { View, Button } from "react-native";
 import React from "react";
+import { PanGestureHandler } from 'react-native-gesture-handler';
 
 export default function AnimatedStyleUpdateExample(props) {
-  const randomWidth = useSharedValue(10);
+  const x = useSharedValue(0);
 
-  const config = {
-    duration: 500,
-    easing: Easing.bezier(0.5, 0.01, 0, 1),
-  };
+  const gestureHandler = useAnimatedGestureHandler({
+    onStart: (_, ctx) => {
+      ctx.startX = x.value;
+    },
+    onActive: (event, ctx) => {
+      x.value = ctx.startX + event.translationX;
+    },
+  });
 
-  const style = useAnimatedStyle(() => {
+  const square = { width: 100, height: 100, backgroundColor: "black" }
+
+  const animatedStyle = useAnimatedStyle(() => {
     return {
-      width: withTiming(randomWidth.value, config),
+      transform: [
+        {
+          translateX: x.value,
+        },
+      ],
     };
   });
 
@@ -30,18 +40,14 @@ export default function AnimatedStyleUpdateExample(props) {
         flexDirection: "column",
       }}
     >
-      <Animated.View
-        style={[
-          { width: 100, height: 80, backgroundColor: "black", margin: 30 },
-          style,
-        ]}
-      />
-      <Button
-        title="toggle"
-        onPress={() => {
-          randomWidth.value = Math.random() * 350;
-        }}
-      />
+      <PanGestureHandler onGestureEvent={gestureHandler}>
+        <Animated.View
+          style={animatedStyle}
+          pointerEvents="box-none"
+        >
+          <View style={[square]} />
+        </Animated.View>
+      </PanGestureHandler>
     </View>
   );
 }
