@@ -15,7 +15,7 @@ export default function AnimatedStyleUpdateExample(props) {
         flexDirection: "column",
       }}
     >
-      <PanGestureHandler onGestureEvent={console.log} activeOffsetX={[0,0]}>
+      <PanGestureHandler onGestureEvent={console.log}>
         <View
           pointerEvents="box-none"
         >
